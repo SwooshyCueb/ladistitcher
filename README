@@ -1,0 +1,18 @@
+ladistitcher
+===============================================================================
+
+Work-in-progress audio system manager for my personal systems.
+While this project isn't really meant for public consumption, I feel that some
+might benefit from the release of this code.
+
+In its current state, ladistitcher is designed specifically for my main system.
+In the future, I may figure out some sort of hardware probing and/or
+configuration system so that it can be used on other systems, but this is
+unlikely. I do plan on making it adaptable to an extent, but only so much so
+that any changes to my setup will only require a few edits to the code, rather
+than a complete overhaul.
+
+Part of the reason I am making this code public is because parts of
+ladistitcher will serve as jumping-off points for other projects. For example,
+as of this writing, it would not take many changes to turn audio_control.ladi
+into a standalone Python module for ladish.
