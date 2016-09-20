@@ -1,20 +1,31 @@
 import sys, os, threading, subprocess
+from ctypes import *
 
 import gi, codecs, io
 from pprint import pprint
 
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gdk', '3.0')
+import warnings
+warnings.filterwarnings("ignore")
+
+gi.require_version('Gtk', '2.0')
+gi.require_version('Gdk', '2.0')
 
 from gi.repository import Gtk as gtk
 from gi.repository import GLib as glib
 from gi.repository import Gio as gio
 from gi.repository import Gdk as gdk
 
+warnings.filterwarnings("default")
+
 import alsaaudio
 from time import sleep
 
 from .common import *
+
+pythonapi.PyCapsule_GetPointer.restype = c_void_p
+pythonapi.PyCapsule_GetPointer.argtypes = [py_object, c_char_p]
+
+gtk_c   = cdll.LoadLibrary('libgtk-x11-2.0.so')
 
 class trayapplet:
 
@@ -185,8 +196,6 @@ class trayapplet:
 
         widget.append(actions.item)
 
-        popup = widget.popup
-
     class mixers:
         onboard = alsaaudio.Mixer(device='onboard')
         extern = None
@@ -212,10 +221,13 @@ class trayapplet:
 
         self.menu.mute.set_active(bool(mixer.getmute()[0]))
         self.tempmixer = mixer
-        self.menu.popup(None, None, gtk.StatusIcon.position_menu, icon, event_button, event_time)
+
+        menu_p = pythonapi.PyCapsule_GetPointer(self.menu.widget.__gpointer__, None)
+        icon_p = pythonapi.PyCapsule_GetPointer(icon.__gpointer__, None)
+        gtk_c.gtk_menu_popup(menu_p, None, None, gtk_c.gtk_status_icon_position_menu, icon_p, event_button, event_time)
 
     def on_button_press(self, icon, event_button):
-        if event_button.button == 2:
+        if event_button.button.button == 2:
             if icon == self.tray.onboard:
                 self.tempmixer = alsaaudio.Mixer(device='onboard')
             else:
@@ -236,9 +248,9 @@ class trayapplet:
             mixer = alsaaudio.Mixer(device='extern', control='Speaker')
 
         vol = mixer.getvolume()[0]
-        if event_scroll.direction == gdk.ScrollDirection.UP:
+        if event_scroll.scroll.direction == gdk.ScrollDirection.UP:
             mixer.setvolume(max(0, min(vol+3, 100)))
-        elif event_scroll.direction == gdk.ScrollDirection.DOWN:
+        elif event_scroll.scroll.direction == gdk.ScrollDirection.DOWN:
             mixer.setvolume(max(0, min(vol-3, 100)))
 
         self.update_status()
