@@ -1,0 +1,39 @@
+# Pulseaudio daemon configuration
+
+allow-module-loading = yes
+allow-exit = yes
+use-pid-file = yes
+system-instance = no
+local-server-type = user
+enable-shm = yes
+log-target = journal
+
+cpu-limit = no
+
+high-priority = yes
+nice-level = -11
+
+realtime-scheduling = yes
+realtime-priority = 5 # JACK uses 10, 9 for clients
+
+exit-idle-time = -1
+scache-idle-time = 30
+
+load-default-script-file = yes
+default-script-file = ~/.config/audio/pulse/startup.pa
+
+#resample-method = src-sinc-medium-quality
+resample-method = ffmpeg
+
+# Anything that doesn't want this should be using JACK anyway
+enable-remixing = yes
+enable-lfe-remixing = yes
+
+flat-volumes = yes
+
+default-sample-format = s24le
+#default-sample-rate = 44100
+#alternate-sample-rate = 48000
+
+#default-fragments = 4
+#default-fragment-size-msec = 25

@@ -1,0 +1,62 @@
+#!/usr/bin/pulseaudio -nF
+
+# Load these protocols first since we're going to be using them a lot
+load-module module-dbus-protocol
+load-module module-cli-protocol-unix
+
+# Automatically restore the volume of streams and devices
+load-module module-device-restore
+load-module module-stream-restore
+load-module module-card-restore
+
+# Automatically augment property information from .desktop files stored in /usr/share/application
+load-module module-augment-properties
+
+# Detect headphone presence and make appropriate adjustments
+load-module module-switch-on-port-available
+# TODO: Since we're using JACK, we might not need this.
+
+# Automatically restore the default sink/source when changed by the user during runtime
+load-module module-default-device-restore
+# Do we need this?
+
+# Load more protocols
+load-module module-esound-protocol-unix
+load-module module-native-protocol-unix
+
+# If we're going to load any network modules, we should do that here
+
+# Automatically move streams to default sink/source if their sink/source dies
+load-module module-rescue-streams
+
+# Make sure we always have a sink around, even if it is a null sink.
+load-module module-always-sink
+
+# Honour intended role device property
+load-module module-intended-roles
+
+# Automatically suspend sinks/sources that become idle for too long
+load-module module-suspend-on-idle
+# How well does this work with JACK? Any power-saving benefits?
+
+# If autoexit on idle is enabled we want to make sure we only quit when no local session needs us anymore.
+# FIXME: THIS FAILS WHEN RAM IS LOW
+.nofail
+load-module module-console-kit
+load-module module-systemd-login
+.fail
+
+# Enable positioned event sounds
+load-module module-position-event-sounds
+
+# Duck music/video/game streams when a voice stream is active
+# TODO: Figure this out
+load-module module-role-ducking trigger_roles=voice ducking_roles=music,video,game,browser global=1 volume=-20dB
+
+# Modules to allow autoloading of filters (such as echo cancellation)
+# on demand. module-filter-heuristics tries to determine what filters
+# make sense, and module-filter-apply does the heavy-lifting of
+# loading modules and rerouting streams.
+# TODO: Figure this out
+load-module module-filter-heuristics
+load-module module-filter-apply
